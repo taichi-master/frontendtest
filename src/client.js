@@ -25,12 +25,15 @@ function initSocket() {
   let socket = io('', {path: '/ws'});
   socket.on('snapshot', (data) => {
     console.log(data);
-    socket.emit('my other event', { my: 'data from client' });
+    // Kei Sing Wong -----
+    // Not sure what the following line trying to do, but by commented it out the server seems to be able to reconnect to the streaming-service.
+    // socket.emit('my other event', { my: 'data from client' });
+    // -------------------
   });
   socket.on('update', (data) => {
     console.log(data);
   });
-  socket.on('disconnect',() => {
+  socket.on('disconnect', () => {
     socket = undefined;
   });
   return socket;
