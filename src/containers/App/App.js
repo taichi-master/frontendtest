@@ -4,6 +4,21 @@ import { Cell, Column, ColumnGroup, Table } from 'fixed-data-table';
 import '../../../node_modules/fixed-data-table/dist/fixed-data-table.css';
 import _ from 'lodash';
 
+// Kei Sing Wong -----
+const throttle = (func, limit) => {
+  let inThrottle;
+  return function() {
+    const args = arguments;
+    const context = this;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+};
+// -------------------
+
 @connect(
     state => ({rows: state.rows, cols: state.cols || new Array(10)})
 )
@@ -16,7 +31,11 @@ export default class App extends Component {
       cols: new Array(10)
     };
     this.onSnapshotReceived = this.onSnapshotReceived.bind(this);
-    this.onUpdateReceived = this.onUpdateReceived.bind(this);
+    // Kei Sing Wong -----
+    // this.onUpdateReceived = this.onUpdateReceived.bind(this);
+    this.duration = 500;  // milli-second (update twice in a second)
+    this.onUpdateReceived = throttle( this.onUpdateReceived.bind(this), this.duration );
+    // -------------------
     this._cell = this._cell.bind(this);
     this._headerCell = this._headerCell.bind(this);
     this._generateCols = this._generateCols.bind(this);
@@ -31,7 +50,7 @@ export default class App extends Component {
     console.log('snapshot' + rows);
     const cols = Object.keys(rows[0]);
     this.setState({rows, cols});
-  };
+  }
   onUpdateReceived(data) {
     // const rows = this.state.rows.concat(data);
 
@@ -41,7 +60,7 @@ export default class App extends Component {
     });
 
     this.setState({rows});
-  };
+  }
   _cell(cellProps) {
     const rowIndex = cellProps.rowIndex;
     const rowData = this.state.rows[rowIndex];
@@ -75,19 +94,19 @@ export default class App extends Component {
     });
     console.log(cols);
     return cols;
-  };
+  }
   componentDidMount() {
     if (socket) {
       socket.on('snapshot', this.onSnapshotReceived);
       socket.on('updates', this.onUpdateReceived);
     }
-  };
+  }
   componentWillUnmount() {
     if (socket) {
       socket.removeListener('snapshot', this.onSnapshotReceived);
       socket.removeListener('updates', this.onUpdateReceived);
     }
-  };
+  }
 
   render() {
     const columns = this._generateCols();
