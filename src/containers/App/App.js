@@ -5,6 +5,9 @@ import '../../../node_modules/fixed-data-table/dist/fixed-data-table.css';
 import _ from 'lodash';
 
 // Kei Sing Wong -----
+import cx from 'classnames';
+import './style.css';
+
 const throttle = (func, limit) => {
   let inThrottle;
   return function() {
@@ -28,7 +31,8 @@ export default class App extends Component {
     super(props);
     this.state = {
       rows: [],
-      cols: new Array(10)
+      cols: new Array(10),
+      trends: []  // Kei Sing Wong
     };
     this.onSnapshotReceived = this.onSnapshotReceived.bind(this);
     // Kei Sing Wong -----
@@ -43,19 +47,30 @@ export default class App extends Component {
 
   onSnapshotReceived(data) {
     let rows = [];
+    const trends = [];  // Kei Sing Wong
+
     data.forEach(row => {
       rows[row.id] = row;
+      trends[row.id] = [];  // Kei Sing Wong
     });
     // const rows = this.state.rows.concat(data);
     console.log('snapshot' + rows);
     const cols = Object.keys(rows[0]);
-    this.setState({rows, cols});
+    // this.setState({rows, cols});
+    this.setState({rows, cols, trends}); // Kei Sing Wong
   }
   onUpdateReceived(data) {
     // const rows = this.state.rows.concat(data);
 
-    let rows = this.state.rows;
+    // let rows = this.state.rows;
+    const { rows, cols, trends } = this.state;  // Kei Sing Wong
+
     data.forEach(newRow => {
+      // Kei Sing Wong -----
+      cols.forEach( col => {
+        trends[newRow.id][col] = newRow[col] - rows[newRow.id][col];
+      });
+      // -------------------
       rows[newRow.id] = newRow;
     });
 
@@ -66,9 +81,17 @@ export default class App extends Component {
     const rowData = this.state.rows[rowIndex];
     const col = this.state.cols[cellProps.columnKey];
     const content = rowData[col];
+    // Kei Sing Wong -----
+    // return (
+    //   <Cell>{content}</Cell>
+    // );
+    const trend = this.state.trends[rowIndex][col];
     return (
-      <Cell>{content}</Cell>
+      <Cell>
+        <span className={cx({'gain': trend > 0, 'loss': trend < 0})}>{content}</span>
+      </Cell>
     );
+    // -------------------
   }
 
   _headerCell(cellProps) {
