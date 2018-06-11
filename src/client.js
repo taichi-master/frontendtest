@@ -27,7 +27,11 @@ function initSocket() {
     console.log(data);
     // Kei Sing Wong -----
     // Not sure what the following line trying to do, but by commented it out the server seems to be able to reconnect to the streaming-service.
-    // socket.emit('my other event', { my: 'data from client' });
+    try {
+      socket.emit('my other event', { my: 'data from client' });
+    } catch (err) {
+      console.log(err);
+    }
     // -------------------
   });
   socket.on('update', (data) => {
