@@ -26,7 +26,7 @@ function initSocket() {
   socket.on('snapshot', (data) => {
     console.log(data);
     // Kei Sing Wong -----
-    // It seems like by set socket to undefined in 'disconnect' without calling removeListener will cause memory leak.
+    // It seems like by setting socket to undefined in 'disconnect' without calling removeListener will cause memory leak.
     // However, since those events are still remain inact, such that when the data-streaming service avaiable again the socket will "reconnect" by itself.
     // Doesn't sound like a good solution for the reconnection mechanism.  Would need more time to investigate.
     // For now just need a check for the socket before issue the emit function.
