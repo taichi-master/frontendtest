@@ -37,7 +37,10 @@ function initSocket() {
     console.log(data);
   });
   socket.on('disconnect', () => {
-    socket = undefined;
+    // Kei Sing Wong -----
+    // Better yet just comment out this line
+    // socket = undefined;
+    // -------------------
   });
   return socket;
 }
